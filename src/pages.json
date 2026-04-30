@@ -3,16 +3,7 @@
     {
       "path": "pages/index/index",
       "style": {
-        "navigationBarTitleText": "睡前陪伴助手",
-        "navigationBarBackgroundColor": "#FFFDF8",
-        "navigationBarTextStyle": "black",
-        "enablePullDownRefresh": false
-      }
-    },
-    {
-      "path": "pages/story/story",
-      "style": {
-        "navigationBarTitleText": "场景播放",
+        "navigationBarTitleText": "小鹿妈妈",
         "navigationBarBackgroundColor": "#FFFDF8",
         "navigationBarTextStyle": "black",
         "enablePullDownRefresh": false
@@ -21,7 +12,7 @@
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "睡前陪伴助手",
+    "navigationBarTitleText": "小鹿妈妈养育帮手",
     "navigationBarBackgroundColor": "#FFFDF8",
     "backgroundColor": "#FFFDF8"
   }

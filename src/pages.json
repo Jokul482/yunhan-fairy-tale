@@ -1,15 +1,59 @@
 {
   "pages": [
     {
-      "path": "pages/index/index",
+      "path": "pages/logs/logs",
       "style": {
-        "navigationBarTitleText": "小鹿妈妈",
+        "navigationBarTitleText": "宝宝记录",
+        "navigationBarBackgroundColor": "#FFFDF8",
+        "navigationBarTextStyle": "black",
+        "enablePullDownRefresh": false
+      }
+    },
+    {
+      "path": "pages/sleep/sleep",
+      "style": {
+        "navigationBarTitleText": "睡前时光",
+        "navigationBarBackgroundColor": "#FFFDF8",
+        "navigationBarTextStyle": "black",
+        "enablePullDownRefresh": false
+      }
+    },
+    {
+      "path": "pages/tools/tools",
+      "style": {
+        "navigationBarTitleText": "养育百科",
         "navigationBarBackgroundColor": "#FFFDF8",
         "navigationBarTextStyle": "black",
         "enablePullDownRefresh": false
       }
     }
   ],
+  "tabBar": {
+    "color": "#8C8279",
+    "selectedColor": "#4A5D8A",
+    "backgroundColor": "#FFFDF8",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/logs/logs",
+        "text": "记录",
+        "iconPath": "static/tab/logs.png",
+        "selectedIconPath": "static/tab/logs-active.png"
+      },
+      {
+        "pagePath": "pages/sleep/sleep",
+        "text": "睡前",
+        "iconPath": "static/tab/sleep.png",
+        "selectedIconPath": "static/tab/sleep-active.png"
+      },
+      {
+        "pagePath": "pages/tools/tools",
+        "text": "百科",
+        "iconPath": "static/tab/tools.png",
+        "selectedIconPath": "static/tab/tools-active.png"
+      }
+    ]
+  },
   "globalStyle": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "小鹿妈妈养育帮手",

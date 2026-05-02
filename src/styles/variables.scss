@@ -1,0 +1,69 @@
+// ==================== 小鹿妈妈 全局样式变量 ====================
+
+// 背景色
+$color-bg: #FFFDF8;
+$color-bg-warm: #FFF5EB;
+$color-bg-cool: #EDF1FA;
+
+// 主文字
+$color-text-main: #2D2A26;
+$color-text-sub: #8C8279;
+$color-text-muted: #C4B8AD;
+$color-text-inverse: #FFFFFF;
+
+// 品牌色
+$color-primary: #4A5D8A;
+$color-primary-light: #6B7FAE;
+$color-accent: #E8A87C;
+$color-accent-dark: #D4956A;
+
+// 功能色
+$color-success: #6BBF7A;
+$color-warning: #F0C060;
+$color-danger: #E88A7C;
+$color-info: #7EC8E3;
+
+// 卡片
+$color-card-bg: #FFFFFF;
+$color-card-border: rgba(140, 130, 121, 0.06);
+$color-card-shadow: rgba(45, 42, 38, 0.06);
+
+// 边框 & 分割线
+$color-border: rgba(140, 130, 121, 0.12);
+$color-border-light: rgba(140, 130, 121, 0.06);
+
+// 圆角
+$radius-sm: 12rpx;
+$radius-md: 20rpx;
+$radius-lg: 32rpx;
+$radius-xl: 40rpx;
+$radius-full: 100rpx;
+
+// 阴影
+$shadow-card: 0 4rpx 20rpx $color-card-shadow;
+$shadow-btn: 0 8rpx 24rpx rgba(74, 93, 138, 0.35);
+$shadow-btn-accent: 0 8rpx 24rpx rgba(232, 168, 124, 0.35);
+
+// 字体大小
+$font-xs: 20rpx;
+$font-sm: 24rpx;
+$font-md: 28rpx;
+$font-lg: 32rpx;
+$font-xl: 36rpx;
+$font-2xl: 44rpx;
+$font-3xl: 56rpx;
+$font-4xl: 88rpx;
+
+// 字重
+$weight-normal: 400;
+$weight-medium: 500;
+$weight-semibold: 600;
+$weight-bold: 700;
+$weight-extrabold: 800;
+
+// 间距
+$spacing-xs: 8rpx;
+$spacing-sm: 16rpx;
+$spacing-md: 24rpx;
+$spacing-lg: 36rpx;
+$spacing-xl: 48rpx;

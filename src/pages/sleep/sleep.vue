@@ -1,23 +1,23 @@
 <template>
-  <view class="home">
-    <view class="home__bg-glow"></view>
+  <view class="sleep">
+    <view class="sleep__bg-glow"></view>
 
     <!-- 护眼模式遮罩 -->
     <view v-if="eyeProtectionOn" class="eye-shield"></view>
 
     <!-- 头部 -->
-    <view class="home__header">
-      <view class="home__title-row">
-        <text class="home__moon">🌙</text>
-        <text class="home__title">小鹿妈妈</text>
+    <view class="sleep__header">
+      <view class="sleep__title-row">
+        <text class="sleep__moon">🌙</text>
+        <text class="sleep__title">睡前时光</text>
       </view>
-      <text class="home__subtitle">养育帮手 · 陪伴成长每一步</text>
+      <text class="sleep__subtitle">放松下来，准备进入梦乡</text>
     </view>
 
-    <scroll-view class="home__body" :scroll-y="true" enhanced :show-scrollbar="false">
-      <view class="home__body-inner">
-        <!-- ======== 睡眠定时器 ======== -->
-        <view id="timer-section" class="card card--timer">
+    <scroll-view class="sleep__body" :scroll-y="true" enhanced :show-scrollbar="false">
+      <view class="sleep__body-inner">
+        <!-- 睡眠定时器 -->
+        <view class="card">
           <view class="card__header">
             <text class="card__icon">⏱</text>
             <text class="card__title">睡眠定时器</text>
@@ -65,8 +65,8 @@
           </view>
         </view>
 
-        <!-- ======== 护眼模式 ======== -->
-        <view id="eye-section" class="card card--eye">
+        <!-- 护眼模式 -->
+        <view class="card">
           <view class="card__header">
             <text class="card__icon">🌙</text>
             <text class="card__title">护眼模式</text>
@@ -81,8 +81,8 @@
           </view>
         </view>
 
-        <!-- ======== 睡前仪式清单 ======== -->
-        <view id="checklist-section" class="card card--checklist">
+        <!-- 睡前仪式清单 -->
+        <view class="card">
           <view class="card__header">
             <text class="card__icon">✅</text>
             <text class="card__title">睡前仪式清单</text>
@@ -142,8 +142,8 @@
         </view>
 
         <!-- 页脚 -->
-        <view class="home__footer">
-          <text class="home__footer-text">🌙 晚安，愿你有个好梦</text>
+        <view class="sleep__footer">
+          <text class="sleep__footer-text">🌙 晚安，愿你有个好梦</text>
         </view>
       </view>
     </scroll-view>
@@ -161,9 +161,10 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { onLoad, onShow, onHide } from '@dcloudio/uni-app'
+import { onShow, onHide } from '@dcloudio/uni-app'
+import { DURATION_OPTIONS, DEFAULT_CHECKLIST_ITEMS } from '@/utils/constants'
+import { getStorage, setStorage } from '@/utils/storage'
 
-// ==================== 类型 ====================
 interface ChecklistItem {
   id: string
   text: string
@@ -171,8 +172,8 @@ interface ChecklistItem {
   isDefault: boolean
 }
 
-// ==================== 定时器状态 ====================
-const durationOptions = [15, 30, 45, 60]
+// ==================== 定时器 ====================
+const durationOptions = DURATION_OPTIONS
 const selectedDuration = ref(15)
 const remaining = ref(15 * 60)
 const timerState = ref<'idle' | 'running' | 'paused' | 'completed'>('idle')
@@ -254,7 +255,7 @@ const eyeProtectionOn = ref(false)
 
 function toggleEyeProtection() {
   eyeProtectionOn.value = !eyeProtectionOn.value
-  wx.setStorageSync('eye_protection_enabled', eyeProtectionOn.value)
+  setStorage('eye_protection_enabled', eyeProtectionOn.value)
   uni.showToast({
     title: eyeProtectionOn.value ? '护眼模式已开启' : '护眼模式已关闭',
     icon: 'none',
@@ -263,35 +264,22 @@ function toggleEyeProtection() {
 }
 
 // ==================== 睡前清单 ====================
-const defaultItems: ChecklistItem[] = [
-  { id: 'd-1', text: '刷牙', checked: false, isDefault: true },
-  { id: 'd-2', text: '洗脸', checked: false, isDefault: true },
-  { id: 'd-3', text: '换睡衣', checked: false, isDefault: true },
-  { id: 'd-4', text: '喝牛奶', checked: false, isDefault: true },
-  { id: 'd-5', text: '读绘本', checked: false, isDefault: true },
-  { id: 'd-6', text: '关灯', checked: false, isDefault: true },
-  { id: 'd-7', text: '说晚安', checked: false, isDefault: true },
-]
-
 const checklist = ref<ChecklistItem[]>([])
 const newItemText = ref('')
-
 const doneCount = computed(() => checklist.value.filter((i) => i.checked).length)
 
 function loadChecklist() {
-  try {
-    const saved = wx.getStorageSync('bedtime_checklist')
-    if (saved && Array.isArray(saved) && saved.length > 0) {
-      checklist.value = saved
-      return
-    }
-  } catch (_) { /* 读取失败用默认值 */ }
-  checklist.value = defaultItems.map((i) => ({ ...i }))
+  const saved = getStorage<ChecklistItem[]>('bedtime_checklist', [])
+  if (saved.length > 0) {
+    checklist.value = saved
+    return
+  }
+  checklist.value = DEFAULT_CHECKLIST_ITEMS.map((i) => ({ ...i }))
   saveChecklist()
 }
 
 function saveChecklist() {
-  try { wx.setStorageSync('bedtime_checklist', checklist.value) } catch (_) {}
+  setStorage('bedtime_checklist', checklist.value)
 }
 
 function toggleItem(id: string) {
@@ -341,13 +329,8 @@ function resetChecklist() {
 }
 
 // ==================== 生命周期 ====================
-onLoad(() => {
-  loadChecklist()
-  try {
-    const saved = wx.getStorageSync('eye_protection_enabled')
-    eyeProtectionOn.value = saved === true || saved === 'true'
-  } catch (_) {}
-})
+loadChecklist()
+eyeProtectionOn.value = getStorage<boolean>('eye_protection_enabled', false)
 
 onShow(() => {
   if (timerState.value === 'running' && hideTime !== null) {
@@ -362,6 +345,8 @@ onShow(() => {
   if (timerState.value === 'running' && !timerInterval) {
     timerInterval = setInterval(tick, 1000)
   }
+  // 每次显示时重新加载清单（可能在其他 Tab 被修改）
+  loadChecklist()
 })
 
 onHide(() => {
@@ -376,17 +361,9 @@ onHide(() => {
 </script>
 
 <style lang="scss" scoped>
-$color-bg: #FFFDF8;
-$color-bg-warm: #FFF5EB;
-$color-text-main: #2D2A26;
-$color-text-sub: #8C8279;
-$color-primary: #4A5D8A;
-$color-primary-light: #6B7FAE;
-$color-accent: #E8A87C;
-$color-card-bg: #FFFFFF;
+@use '@/styles/variables.scss' as *;
 
-// ==================== 全局布局 ====================
-.home {
+.sleep {
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -409,7 +386,7 @@ $color-card-bg: #FFFFFF;
   &__header {
     position: relative;
     z-index: 1;
-    padding: 60rpx 40rpx 32rpx;
+    padding: 40rpx 40rpx 24rpx;
     text-align: center;
   }
 
@@ -418,18 +395,18 @@ $color-card-bg: #FFFFFF;
     align-items: center;
     justify-content: center;
     gap: 16rpx;
-    margin-bottom: 10rpx;
+    margin-bottom: 8rpx;
   }
 
   &__moon {
-    font-size: 56rpx;
+    font-size: 48rpx;
     line-height: 1;
     filter: drop-shadow(0 4rpx 8rpx rgba(232, 168, 124, 0.4));
   }
 
   &__title {
-    font-size: 44rpx;
-    font-weight: 800;
+    font-size: 40rpx;
+    font-weight: $weight-extrabold;
     color: $color-text-main;
     letter-spacing: 2rpx;
   }
@@ -454,17 +431,17 @@ $color-card-bg: #FFFFFF;
   &__footer {
     display: flex;
     justify-content: center;
-    padding: 50rpx 0 80rpx;
+    padding: 40rpx 0 80rpx;
 
     &-text {
       font-size: 24rpx;
-      color: #C4B8AD;
+      color: $color-text-muted;
       letter-spacing: 4rpx;
     }
   }
 }
 
-// ==================== 护眼遮罩 ====================
+// 护眼遮罩
 .eye-shield {
   position: fixed;
   top: 0;
@@ -476,14 +453,14 @@ $color-card-bg: #FFFFFF;
   pointer-events: none;
 }
 
-// ==================== 通用卡片 ====================
+// 通用卡片
 .card {
   background-color: $color-card-bg;
-  border-radius: 32rpx;
+  border-radius: $radius-lg;
   padding: 36rpx;
   margin-bottom: 28rpx;
-  box-shadow: 0 4rpx 20rpx rgba(45, 42, 38, 0.06);
-  border: 2rpx solid rgba(140, 130, 121, 0.06);
+  box-shadow: $shadow-card;
+  border: 2rpx solid $color-card-border;
 
   &__header {
     display: flex;
@@ -499,12 +476,12 @@ $color-card-bg: #FFFFFF;
 
   &__title {
     font-size: 30rpx;
-    font-weight: 700;
+    font-weight: $weight-bold;
     color: $color-text-main;
   }
 }
 
-// ==================== 定时器 ====================
+// 定时器
 .timer {
   &__display {
     text-align: center;
@@ -517,7 +494,7 @@ $color-card-bg: #FFFFFF;
 
   &__time {
     font-size: 88rpx;
-    font-weight: 800;
+    font-weight: $weight-extrabold;
     color: $color-text-main;
     letter-spacing: 4rpx;
     font-family: 'SF Mono', 'Menlo', 'Courier New', monospace;
@@ -545,9 +522,9 @@ $color-card-bg: #FFFFFF;
     flex-direction: column;
     align-items: center;
     padding: 16rpx 24rpx;
-    border-radius: 20rpx;
+    border-radius: $radius-md;
     background-color: $color-bg;
-    border: 2rpx solid rgba(140, 130, 121, 0.12);
+    border: 2rpx solid $color-border;
     transition: all 0.2s ease;
 
     &:active {
@@ -556,7 +533,7 @@ $color-card-bg: #FFFFFF;
 
     &--active {
       border-color: $color-primary;
-      background-color: #EDF1FA;
+      background-color: $color-bg-cool;
 
       .timer__preset-num {
         color: $color-primary;
@@ -570,7 +547,7 @@ $color-card-bg: #FFFFFF;
 
   &__preset-num {
     font-size: 36rpx;
-    font-weight: 800;
+    font-weight: $weight-extrabold;
     color: $color-text-main;
     line-height: 1.2;
   }
@@ -589,9 +566,9 @@ $color-card-bg: #FFFFFF;
 
   &__btn {
     padding: 20rpx 56rpx;
-    border-radius: 100rpx;
+    border-radius: $radius-full;
     font-size: 28rpx;
-    font-weight: 700;
+    font-weight: $weight-bold;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 
     &:active {
@@ -600,14 +577,14 @@ $color-card-bg: #FFFFFF;
 
     &--start {
       background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
-      color: #FFFFFF;
-      box-shadow: 0 8rpx 24rpx rgba(74, 93, 138, 0.35);
+      color: $color-text-inverse;
+      box-shadow: $shadow-btn;
     }
 
     &--pause {
-      background: linear-gradient(135deg, $color-accent 0%, #D4956A 100%);
-      color: #FFFFFF;
-      box-shadow: 0 8rpx 24rpx rgba(232, 168, 124, 0.35);
+      background: linear-gradient(135deg, $color-accent 0%, $color-accent-dark 100%);
+      color: $color-text-inverse;
+      box-shadow: $shadow-btn-accent;
     }
 
     &--reset {
@@ -615,7 +592,7 @@ $color-card-bg: #FFFFFF;
       height: 72rpx;
       border-radius: 50%;
       background-color: $color-bg;
-      border: 2rpx solid rgba(140, 130, 121, 0.15);
+      border: 2rpx solid $color-border;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -626,7 +603,7 @@ $color-card-bg: #FFFFFF;
   }
 }
 
-// ==================== 护眼模式 ====================
+// 护眼模式
 .eye {
   &__desc {
     font-size: 26rpx;
@@ -660,13 +637,13 @@ $color-card-bg: #FFFFFF;
     width: 48rpx;
     height: 48rpx;
     border-radius: 50%;
-    background-color: #FFFFFF;
+    background-color: $color-text-inverse;
     box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.12);
     transition: transform 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
   }
 }
 
-// ==================== 清单 ====================
+// 清单
 .checklist {
   &__progress {
     margin-bottom: 24rpx;
@@ -688,7 +665,7 @@ $color-card-bg: #FFFFFF;
 
   &__progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, $color-accent 0%, #D4956A 100%);
+    background: linear-gradient(90deg, $color-accent 0%, $color-accent-dark 100%);
     border-radius: 8rpx;
     transition: width 0.3s ease;
   }
@@ -701,7 +678,7 @@ $color-card-bg: #FFFFFF;
     display: flex;
     align-items: center;
     padding: 20rpx 8rpx;
-    border-bottom: 2rpx solid rgba(140, 130, 121, 0.06);
+    border-bottom: 2rpx solid $color-border-light;
     transition: background-color 0.15s ease;
 
     &:active {
@@ -733,19 +710,19 @@ $color-card-bg: #FFFFFF;
 
   &__checkmark {
     font-size: 24rpx;
-    color: #FFFFFF;
-    font-weight: 700;
+    color: $color-text-inverse;
+    font-weight: $weight-bold;
   }
 
   &__item-text {
     flex: 1;
     font-size: 30rpx;
     color: $color-text-main;
-    font-weight: 500;
+    font-weight: $weight-medium;
 
     &--done {
       text-decoration: line-through;
-      color: #C4B8AD;
+      color: $color-text-muted;
     }
   }
 
@@ -758,12 +735,12 @@ $color-card-bg: #FFFFFF;
     align-items: center;
     justify-content: center;
     font-size: 28rpx;
-    color: #C4B8AD;
+    color: $color-text-muted;
     margin-left: 12rpx;
 
     &:active {
       background-color: #FFE8E0;
-      color: #E88A7C;
+      color: $color-danger;
     }
   }
 
@@ -776,22 +753,22 @@ $color-card-bg: #FFFFFF;
   &__input {
     flex: 1;
     height: 80rpx;
-    border-radius: 20rpx;
+    border-radius: $radius-md;
     background-color: $color-bg;
     padding: 0 24rpx;
     font-size: 28rpx;
     color: $color-text-main;
-    border: 2rpx solid rgba(140, 130, 121, 0.12);
+    border: 2rpx solid $color-border;
   }
 
   &__add-btn {
     width: 140rpx;
     height: 80rpx;
-    border-radius: 20rpx;
+    border-radius: $radius-md;
     background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
-    color: #FFFFFF;
+    color: $color-text-inverse;
     font-size: 28rpx;
-    font-weight: 600;
+    font-weight: $weight-semibold;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -813,7 +790,7 @@ $color-card-bg: #FFFFFF;
   }
 }
 
-// ==================== 完成弹窗 ====================
+// 完成弹窗
 .completion-overlay {
   position: fixed;
   top: 0;
@@ -827,7 +804,7 @@ $color-card-bg: #FFFFFF;
   z-index: 1000;
 
   &__card {
-    background-color: #FFFFFF;
+    background-color: $color-text-inverse;
     border-radius: 40rpx;
     padding: 80rpx;
     text-align: center;
@@ -844,7 +821,7 @@ $color-card-bg: #FFFFFF;
 
   &__title {
     font-size: 44rpx;
-    font-weight: 800;
+    font-weight: $weight-extrabold;
     color: $color-text-main;
     display: block;
     margin-bottom: 16rpx;
